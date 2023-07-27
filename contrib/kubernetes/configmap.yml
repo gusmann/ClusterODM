@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-odm
+data:
+  base-config.json: |
+    {
+      "port": 3000,
+      "secure-port": 0,
+      "admin-cli-port": 8080,
+      "admin-web-port": 10000,
+      "admin-pass": "",
+      "cloud-provider": "local",
+      "downloads-from-s3": "",
+      "splitmerge": true,
+      "cluster-address": "",
+      "token":"",
+      "debug": false,
+      "log-level": "info",
+      "upload-max-speed": 0,
+      "flood-limit": 0,
+      "stale-uploads-timeout": 0,
+      "ssl-key": "",
+      "ssl-cert": "",
+      "asr": ""
+    }

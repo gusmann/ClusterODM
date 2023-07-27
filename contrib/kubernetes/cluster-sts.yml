@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cluster-odm
+spec:
+  selector:
+    matchLabels:
+      app: cluster-odm
+      component: manager
+  serviceName: cluster-odm-manager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cluster-odm
+        component: manager
+    spec:
+      initContainers:
+        - name: config-merger
+          image: alpine
+          command:
+            - | 
+              apk add --no-cache jq
+              # TODO: here we want to get the base config, overwrite any values from the secret config, and save it to a single merged json file
+              jq
+          volumeMounts:
+            - name: base-config
+              mountPath: /config/base
+            - name: secret-config
+              mountPath: /config/secret
+            - name: merged-config
+              mountPath: /config/merged
+      containers:
+      - name: manager
+        image: opendronemap/clusterodm
+        command: 
+          - |
+            node index.js --asr /config/merged/configuration.json
+        ports:
+        - containerPort: 3000
+          name: web
+        - containerPort: 8080
+          name: admin-cli
+        - containerPort: 10000
+          name: admin-web
+        volumeMounts:
+          - name: data
+            mountPath: /var/www/data
+          - name: merged-config
+            mountPath: /config/merged
+      volumes:
+        - name: merged-config
+          emptyDir: {}
+        - name: secret-config
+          secretName:
+            name: cluster-odm-config
+        - name: base-config
+          configMap:
+            name: cluster-odm-config
+  
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cluster-odm
+spec:
+  selector:
+    matchLabels:
+      app: cluster-odm
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: cluster-odm
+        component: worker
+    spec:
+      containers:
+      - name: worker
+        image: opendronemap/nodeodm
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+          name: worker-api
